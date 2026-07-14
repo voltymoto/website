@@ -40,6 +40,36 @@ PAGES = [
         hero=None,   # index keeps its own existing hero
     ),
 
+    dict(
+        slug="vision",
+        title="VOLTY U-1 | Vision",
+        desc="Why a utility first electric motorcycle platform, and why nobody else in Vietnam is building one.",
+        crumb="Vision",
+        h1="Built for work. <em>Not commuting.</em>",
+        lead="Most electric two wheelers chase lifestyle buyers. We build for the rider who covers 200 km a day, six days a week, and judges a vehicle by uptime, payload, and running cost.",
+        hero=dict(mode="still", img="volty-u-1-side-profile", alt="Volty U-1 side profile"),
+    ),
+
+    dict(
+        slug="design",
+        title="VOLTY U-1 | The Design",
+        desc="Every part earns its place. The U-1 was drawn for one job: moving goods all day at the lowest cost per kilometer.",
+        crumb="Design",
+        h1="Every part <em>earns its place.</em>",
+        lead="The U-1 was drawn for one job: moving goods, all day, at the lowest cost per kilometer in this market. Nothing on it is decoration.",
+        hero=dict(mode="still", img="volty-u-1-exploded-component-view", alt="Volty U-1 exploded component view"),
+    ),
+
+    dict(
+        slug="difference",
+        title="VOLTY U-1 | Why We Are Different",
+        desc="VinFast and Gogoro lock riders into a single battery ecosystem. Volty is agnostic by design, the first cross compatible swap platform in Vietnam.",
+        crumb="Difference",
+        h1="One bike. <em>Every network.</em>",
+        lead="VinFast and Gogoro lock riders into a single battery ecosystem. Volty is agnostic by design, the first cross compatible battery swapping utility bike in Vietnam.",
+        hero=dict(mode="still", img="volty-u-1-electric-utility-motorcycle", alt="Volty U-1 electric utility motorcycle"),
+    ),
+
     # -------------------------------------------------------------- vehicle
     dict(
         slug="vehicle",
@@ -128,5 +158,15 @@ PAGES = [
                 ),
             ],
         ),
+    ),
+
+    dict(
+        slug="contact",
+        title="VOLTY U-1 | Contact",
+        desc="Fleet pilots, partnerships and rider support. NUEN MOTO Company Limited, Thu Duc City, Ho Chi Minh City.",
+        crumb="Contact",
+        h1="Let's build the <em>fleet.</em>",
+        lead="10 to 100 units, your routes, your riders, real operating data before any fleet commitment.",
+        hero=dict(mode="still", img=None, alt=""),
     ),
 ]

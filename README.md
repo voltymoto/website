@@ -1,35 +1,51 @@
-# Volty site build system
+# Volty site
 
-`dist/` is BUILD OUTPUT. Do not hand-edit it. Edit `build/`, then rebuild.
+Ten pages, one generator. `dist/` is BUILD OUTPUT. Do not hand-edit it.
 
 ## Rebuild
+    cd build && python3 pages.py     # writes ../dist/*.html
 
-    cd build && python3 pages.py      # writes ../dist/*.html
+## Information architecture
 
-## Where things live
+Index is an INTRO, not a scroll. It carries the hero, the positioning thesis,
+"Why Now" (the regulatory forcing function), a directory into the site, and a
+pilot CTA. Everything else lives on its own page.
 
-| File | What it is |
+Reading order (drives the prev/next pager, defined once in `pages.py` -> `ORDER`):
+
+    index -> vision -> design -> difference -> vehicle -> technology
+          -> audience -> fleet-economics -> fleet-tco -> contact
+
+| Page | Hero | Content |
+|---|---|---|
+| index | bespoke bike hero | thesis, Why Now, directory, CTA |
+| vision | still (side profile) | What We Are Building |
+| design | still (exploded view) | Every part earns its place |
+| difference | still (clean bike) | Open vs closed ecosystem, market comparison |
+| vehicle | **hotspot** | Specs, expandable system, ad panel, economics teaser |
+| technology | **swap simulator** | Battery bay, swap cabinets |
+| audience | **segment switcher** | Fleet gallery, partnership models |
+| fleet-economics | (hand-built) | Per rider |
+| fleet-tco | (hand-built) | Per unit, 3 year |
+| contact | still (text) | Contact and collaboration |
+
+## Where to edit
+| File | What |
 |---|---|
-| `pages.py` | The generator. Shell, nav routing, hero renderers, asset inlining. |
-| `page_defs.py` | Page copy and hero configuration. **Most edits go here.** |
-| `site/content/*.html` | Page bodies. Reference images as `{{asset:name}}`. |
-| `site/css/base.css` | Shared stylesheet (extracted from the original build). |
-| `site/css/hero.css` | Interactive hero engine styles. |
-| `site/js/hero.js` | Interactive hero engine (3 modes). |
-| `site/js/app.js` | Nav, reveal-on-scroll, index hero tilt. |
-| `site/js/i18n.js` | EN/VI DOM walker. |
-| `site/vi.json` | EN -> VI strings. Keys must be the TRIMMED text node. |
-| `site/assets/` | Images. Inlined as data URIs at build time. |
+| `page_defs.py` | Page copy + hero config. **Most edits go here.** |
+| `pages.py` | Generator: `NAV` routing, `ORDER` pager, hero renderers, asset inlining. |
+| `site/content/*.html` | Page bodies. `_s_*.html` are the source sections. |
+| `site/css/base.css` | Shared styles. |
+| `site/css/hero.css` | Hero engine, pager, directory grid. |
+| `site/js/hero.js` | Hero engine (hotspot / swap / segments). |
+| `site/vi.json` | EN -> VI. Keys must be the TRIMMED text node, no trailing spaces. |
+| `site/assets/` | Images, inlined as data URIs at build time. |
 
-## Nav routing
-Defined once in `pages.py` (`NAV`, `ECON`). Change it there, rebuild, every page updates.
-
-## Hero modes
-- `hotspot`  vehicle.html    Hover/click points on the bike, callout cards.
-- `swap`     technology.html Animated pack ejection, live timer, network picker.
-- `segments` audience.html   Fleet segment switcher, animated stat readouts.
-
-## Known gap
-`fleet-economics.html` and `fleet-tco.html` are still hand-built and sit OUTSIDE the
-generator. Their nav has been patched to route to the new pages, but a future nav
-change will not reach them automatically. Fold them into `page_defs.py` next.
+## Known gaps
+1. `fleet-economics.html` and `fleet-tco.html` are still hand-built, OUTSIDE the
+   generator. Their nav and pager are patched in post-build. Fold them into
+   `page_defs.py` next.
+2. `terms.html` and `privacy.html` are linked from the footer but do not exist.
+   This predates the rebuild. Either write them or drop the footer links.
+3. Assets are base64-inlined, which is why `design.html` is ~1.2 MB. Switching to
+   linked files is a one-line change in `pages.py` (`asset()`).

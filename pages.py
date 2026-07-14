@@ -47,9 +47,9 @@ def inline_assets(html: str) -> str:
 # nav  (routing lives in ONE place)
 # --------------------------------------------------------------------------
 NAV = [
-    ("Vision",     "#vision",          "anchor"),
-    ("Design",     "#design",          "anchor"),
-    ("Difference", "#difference",      "anchor"),
+    ("Vision",     "vision.html",      "page"),
+    ("Design",     "design.html",      "page"),
+    ("Difference", "difference.html",  "page"),
     ("Vehicle",    "vehicle.html",     "page"),
     ("Technology", "technology.html",  "page"),
     ("Audience",   "audience.html",    "page"),
@@ -63,16 +63,14 @@ def nav_html(slug: str) -> str:
     home = slug == "index"
     links = []
     for label, href, kind in NAV:
-        if kind == "anchor":
-            href = href if home else "index.html" + href
         cls = ' class="on"' if href == f"{slug}.html" else ""
         links.append(f'<a href="{href}"{cls}>{label}</a>')
     dd = "".join(
         f'<a href="{h}"><b>{t}</b><span class="eyebrow" style="color:var(--faint)">{s}</span></a>'
         for t, h, s in ECON
     )
-    contact = "#contact" if home else "index.html#contact"
-    brand = "#top" if home else "index.html"
+    contact = "contact.html"
+    brand = "index.html"
     return f'''<nav id="nav"><a class="brand" href="{brand}"><span class="mk"></span>VOLTY</a>
 <div class="navlinks">{''.join(links)}
 <div class="dd" id="dd"><button type="button">Economics <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 3l4 4 4-4"/></svg></button><div class="ddmenu">{dd}</div></div>
@@ -80,7 +78,7 @@ def nav_html(slug: str) -> str:
 <div class="navr"><a class="navcta" href="{contact}">Contact</a>
 <div class="langsw" role="group" aria-label="Language"><button class="lb on" data-l="en" onclick="__setLang('en')">EN</button><button class="lb" data-l="vi" onclick="__setLang('vi')">VI</button></div>
 <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button></div></nav>
-<div class="mpanel" id="mpanel">{''.join(f'<a href="{(h if home or k=="page" else "index.html"+h)}">{l}</a>' for l,h,k in NAV)}
+<div class="mpanel" id="mpanel">{''.join(f'<a href="{h}">{l}</a>' for l,h,k in NAV)}
 {''.join(f'<a href="{h}" class="sub">Economics / {t}</a>' for t,h,_ in ECON)}
 <span class="mpanel-soon">Configure <i>Coming Soon</i></span><a href="{contact}">Contact</a></div>'''
 
@@ -180,7 +178,19 @@ def render_segments(p):
   <p class="xh-segnote"></p>
 </div></section>'''
 
-RENDER = {"hotspot": render_hotspot, "swap": render_swap, "segments": render_segments}
+def render_still(p):
+    h = p["hero"]
+    if not h.get("img"):
+        return f'''<section class="xhero"><div class="xh-aura"></div><div class="xh-grid"></div><div class="wrap">
+  <div class="xh-textonly">{hero_head(p)}</div>
+</div></section>'''
+    return f'''<section class="xhero"><div class="xh-aura"></div><div class="xh-grid"></div><div class="wrap">
+  {hero_head(p)}
+  <div class="xh-still"><div class="xh-plate"><img src="{{{{asset:{h["img"]}}}}}" alt="{h["alt"]}"></div></div>
+</div></section>'''
+
+RENDER = {"hotspot": render_hotspot, "swap": render_swap,
+          "segments": render_segments, "still": render_still}
 
 def hero_config(p):
     h = dict(p["hero"])
@@ -189,6 +199,35 @@ def hero_config(p):
         h["rig"] = None  # positions already in DOM; JS only needs the index lists
         h = {k: v for k, v in h.items() if v is not None}
     return json.dumps(h, ensure_ascii=False, separators=(",", ":"))
+
+# --------------------------------------------------------------------------
+# reading order  (drives the prev/next pager)
+# --------------------------------------------------------------------------
+ORDER = [
+    ("index",           "Intro"),
+    ("vision",          "Vision"),
+    ("design",          "Design"),
+    ("difference",      "Difference"),
+    ("vehicle",         "Vehicle"),
+    ("technology",      "Technology"),
+    ("audience",        "Audience"),
+    ("fleet-economics", "Fleet Economics"),
+    ("fleet-tco",       "Fleet TCO"),
+    ("contact",         "Contact"),
+]
+
+def pager(slug):
+    slugs = [s for s, _ in ORDER]
+    if slug not in slugs:
+        return ""
+    i = slugs.index(slug)
+    prev = ORDER[i - 1] if i > 0 else None
+    nxt  = ORDER[i + 1] if i < len(ORDER) - 1 else None
+    l = (f'<a class="prev" href="{prev[0]}.html"><span class="k">&larr; Previous</span><b>{prev[1]}</b></a>'
+         if prev else '<div class="sp"></div>')
+    r = (f'<a class="next" href="{nxt[0]}.html"><span class="k">Next &rarr;</span><b>{nxt[1]}</b></a>'
+         if nxt else '<div class="sp"></div>')
+    return f'<section class="pager"><div class="wrap">{l}{r}</div></section>'
 
 # --------------------------------------------------------------------------
 # page shell
@@ -200,6 +239,7 @@ HERO_JS  = (SITE / "js/hero.js").read_text()
 I18N_JS  = (SITE / "js/i18n.js").read_text()
 VI       = json.loads((SITE / "vi.json").read_text())
 FOOTER   = (SITE / "content/_footer.html").read_text()
+CONTACT  = (SITE / "content/_s_contact.html").read_text()
 
 def build(p):
     slug = p["slug"]
@@ -229,6 +269,7 @@ def build(p):
 {nav_html(slug)}
 {hero}
 {body}
+{pager(slug)}
 {FOOTER}
 <script>{APP_JS}</script>
 {hero_js}
